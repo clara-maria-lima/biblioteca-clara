@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Biblioteca Clara</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #e8ede6;
+      --surface: #f2f5f0;
+      --surface2: #dce4d9;
+      --border: #c4d0c0;
+      --gold: #3a5c35;
+      --gold-light: #2d4a28;
+      --cream: #111a10;
+      --muted: #5a6e57;
+      --red: #b83232;
+      --green: #2e7d52;
+      --blue: #2c5f8a;
+      --accent: #4a7c44;
+      --tag-unread-bg: #dce4d9;
+      --tag-unread-txt: #5a6e57;
+      --tag-reading-bg: #ddeaf5;
+      --tag-reading-txt: #2c5f8a;
+      --tag-done-bg: #d9f0e3;
+      --tag-done-txt: #2e7d52;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 40px 48px 36px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      background: linear-gradient(135deg, #d4e0d1 0%, #e8ede6 70%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '📚';
+      position: absolute;
+      right: -10px;
+      top: -20px;
+      font-size: 9rem;
+      opacity: 0.06;
+      pointer-events: none;
+      transform: rotate(-10deg);
+    }
+
+    .header-title h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      color: #111a10;
+      letter-spacing: -1.5px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .header-title h1 span { color: var(--accent); }
+
+    .header-tagline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .header-tagline p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .total-progress-wrap {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .total-progress-bar {
+      width: 160px;
+      height: 5px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .total-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    .total-progress-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .stats { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .stat {
+      text-align: center;
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 14px;
+      padding: 14px 22px;
+      min-width: 72px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(58,92,53,0.08);
+    }
+
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; color: #111a10; line-height: 1; font-weight: 800; }
+    .stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.8px; margin-top: 5px; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      padding: 16px 48px;
+      display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(242,245,240,0.7);
+      backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    #search { width: 100%; padding: 10px 12px 10px 38px; background: #fff; border: 1px solid var(--border); border-radius: 10px; color: var(--cream); font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    #search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,124,68,0.12); }
+    #search::placeholder { color: var(--muted); }
+
+    .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .filters { display: flex; gap: 4px; background: var(--surface2); padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+    .filter-btn { padding: 6px 14px; border-radius: 8px; border: none; background: transparent; color: var(--muted); font-size: 0.78rem; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.18s; white-space: nowrap; font-weight: 400; }
+    .filter-btn:hover { color: var(--accent); }
+    .filter-btn.active { background: #fff; color: var(--accent); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+    .sort-select { padding: 8px 12px; background: #fff; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-size: 0.78rem; font-family: 'Inter', sans-serif; outline: none; cursor: pointer; }
+    .sort-select:focus { border-color: var(--accent); }
+
+
+
+    /* ── GRID ── */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; padding: 24px 48px; flex: 1; align-items: start; }
+
+    /* ── BOOK CARD ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+      cursor: default;
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 0.35s ease both;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 28px rgba(58,92,53,0.16); }
+
+    .card-spine { height: 4px; }
+    .card-spine.unread  { background: var(--border); }
+    .card-spine.reading { background: var(--blue); }
+    .card-spine.done    { background: var(--green); }
+
+    .card-body { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+
+    /* Cover with hover overlay */
+    .card-cover-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2/3;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 4px;
+      background: var(--surface2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-cover-emoji {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+    }
+
+    .card-cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+
+
+    /* Status badge on top of cover */
+    .cover-badge {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(255,255,255,0.6);
+    }
+
+    .cover-badge.done    { background: rgba(46,125,82,0.9); color: #fff; }
+    .cover-badge.reading { background: rgba(44,95,138,0.9); color: #fff; }
+    .cover-badge.unread  { display: none; }
+
+    .card-title { font-family: 'Syne', sans-serif; font-size: 0.78rem; line-height: 1.3; color: #111a10; font-weight: 700; }
+    .card-author { font-size: 0.72rem; color: var(--muted); }
+    .card-genre { font-size: 0.68rem; color: var(--muted); font-style: italic; margin-top: 1px; }
+
+    .card-footer { display: flex; align-items: center; justify-content: flex-start; margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--border); }
+
+    .status-tag { padding: 3px 8px; border-radius: 999px; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3px; }
+    .status-tag.unread  { background: var(--tag-unread-bg);  color: var(--tag-unread-txt); }
+    .status-tag.reading { background: var(--tag-reading-bg); color: var(--tag-reading-txt); }
+    .status-tag.done    { background: var(--tag-done-bg);    color: var(--tag-done-txt); }
+
+    .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.4s ease; }
+
+    /* ── EMPTY ── */
+    .empty { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
+    .empty-icon { font-size: 3rem; margin-bottom: 16px; }
+    .empty h3 { font-family: 'Syne', sans-serif; color: var(--muted); font-size: 1.2rem; margin-bottom: 8px; }
+    .empty p { font-size: 0.82rem; color: var(--muted); }
+
+
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px 40px;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+      margin-top: auto;
+    }
+
+    @media (max-width: 600px) {
+      header, .toolbar, .grid { padding-left: 20px; padding-right: 20px; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+      .total-progress-bar { width: 100px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <h1>Biblioteca <span>Clara</span></h1>
+    <div class="header-tagline">
+      <p id="subtitle">coleção pessoal de livros</p>
+    </div>
+    <div class="total-progress-wrap">
+      <div class="total-progress-bar"><div class="total-progress-fill" id="total-prog-fill" style="width:0%"></div></div>
+      <span class="total-progress-label" id="total-prog-label">0% lido</span>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="stat-done">0</div><div class="stat-label">Lidos</div></div>
+    <div class="stat"><div class="stat-num" id="stat-reading">0</div><div class="stat-label">Lendo</div></div>
+    <div class="stat"><div class="stat-num" id="stat-unread">0</div><div class="stat-label">Na fila</div></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="search-wrap">
+    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input id="search" type="text" placeholder="Buscar título ou autor…"/>
+  </div>
+  <div class="toolbar-right">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="unread">Na fila</button>
+      <button class="filter-btn" data-filter="reading">Lendo</button>
+      <button class="filter-btn" data-filter="done">Lidos</button>
+    </div>
+    <select class="sort-select" id="sort-select">
+      <option value="default">Ordenar: Padrão</option>
+      <option value="title">A → Z</option>
+      <option value="author">Autor</option>
+      <option value="status">Status</option>
+    </select>
+
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+
+<footer>
+  Biblioteca Clara &nbsp;·&nbsp; <span id="footer-count">0</span> livros na coleção
+</footer>
+
+<script>
+  let books = [];
+  let activeFilter = 'all';
+  let searchQuery = '';
+  let sortOrder = 'default';
+
+  const EMOJIS = ['📘','📕','📗','📙','📓','📔','📒','📚'];
+
+  function statusLabel(s) {
+    return { unread:'Na fila', reading:'Lendo', done:'Lido ✓' }[s] || s;
+  }
+
+  function emojiFor(book) {
+    let h = 0;
+    for (let c of book.title) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+    return EMOJIS[h % EMOJIS.length];
+  }
+
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function render() {
+    const grid = document.getElementById('grid');
+    const q = searchQuery.toLowerCase();
+    let filtered = books.filter(b => {
+      const matchFilter = activeFilter === 'all' || b.status === activeFilter;
+      const matchSearch = !q || b.title.toLowerCase().includes(q) || (b.author||'').toLowerCase().includes(q);
+      return matchFilter && matchSearch;
+    });
+
+    if (sortOrder === 'title') filtered.sort((a,b) => a.title.localeCompare(b.title, 'pt'));
+    else if (sortOrder === 'author') filtered.sort((a,b) => (a.author||'').localeCompare(b.author||'', 'pt'));
+    else if (sortOrder === 'status') {
+      const order = {reading:0, done:1, unread:2};
+      filtered.sort((a,b) => (order[a.status]||0) - (order[b.status]||0));
+    }
+
+    const total   = books.length;
+    const done    = books.filter(b=>b.status==='done').length;
+    const reading = books.filter(b=>b.status==='reading').length;
+    const unread  = books.filter(b=>b.status==='unread').length;
+    const pct     = total ? Math.round(done/total*100) : 0;
+
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-done').textContent    = done;
+    document.getElementById('stat-reading').textContent = reading;
+    document.getElementById('stat-unread').textContent  = unread;
+    document.getElementById('total-prog-fill').style.width = pct + '%';
+    document.getElementById('total-prog-label').textContent = pct + '% lido';
+    document.getElementById('subtitle').textContent =
+      total ? `${total} livro${total>1?'s':''} · ${reading} em leitura` : 'coleção pessoal de livros';
+    document.getElementById('footer-count').textContent = total;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><h3>${total ? 'Nenhum resultado' : 'Biblioteca vazia'}</h3><p>${total ? 'Tente outro filtro ou busca.' : ''}</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map((b, i) => {
+      const pg = (b.pread && b.ptotal) ? Math.min(100, Math.round(b.pread/b.ptotal*100)) : 0;
+      const showProg = b.status === 'reading' && b.ptotal;
+      const badge = b.status === 'done' ? `<div class="cover-badge done">✓</div>`
+                  : b.status === 'reading' ? `<div class="cover-badge reading">▶</div>` : '';
+
+      const coverInner = b.cover
+        ? `<img src="${esc(b.cover)}" alt="Capa" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+           <div class="card-cover-emoji" style="display:none">${emojiFor(b)}</div>`
+        : `<div class="card-cover-emoji">${emojiFor(b)}</div>`;
+
+      return `
+        <div class="card" style="animation-delay:${Math.min(i,20)*30}ms">
+          <div class="card-spine ${b.status}"></div>
+          <div class="card-body">
+            <div class="card-cover-wrap">
+              ${coverInner}
+              ${badge}
+            </div>
+            <div>
+              <div class="card-title">${esc(b.title)}</div>
+              ${b.author ? `<div class="card-author">${esc(b.author)}</div>` : ''}
+              ${b.genre  ? `<div class="card-genre">${esc(b.genre)}</div>` : ''}
+            </div>
+            ${showProg ? `<div><div style="font-size:0.65rem;color:var(--muted);">${b.pread}/${b.ptotal} pág. · ${pg}%</div><div class="progress-bar"><div class="progress-fill" style="width:${pg}%"></div></div></div>` : ''}
+            <div class="card-footer">
+              <span class="status-tag ${b.status}">${statusLabel(b.status)}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('sort-select').addEventListener('change', e => {
+    sortOrder = e.target.value;
+    render();
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  document.getElementById('search').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    render();
+  });
+
+  // AQUI ESTÃO TODOS OS SEUS DADOS COPIADOS COM SUCESSO!
+  const PRELOAD = [{"id":"mouby2xm8neszyfd8gc","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSo_pOav0pYy-4xaKpEFTUcRQ36ENf1vF3HRQ&s","title":"O Mulato","author":"Aluísio Azevedo","genre":"Romance/Literatura Brasileira","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmqz756l5bg1d","cover":"https://m.media-amazon.com/images/I/71GmxCfLWhL._AC_UF1000,1000_QL80_.jpg","title":"O Paraíso Destruído","author":"","genre":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm3fk9lfihkdw","cover":"https://m.media-amazon.com/images/I/71AmXU-CZfL.jpg","title":"Futuro Ancestral","author":"Ailton Krenak","genre":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm4433tkucabr","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcRUJUTcTMhOQqQSmc4eMUTAMYc1ZeJxYiGA&s","title":"Iracema","author":"José de Alencar","genre":"Romance/Literatura Brasileira","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmp1iwwgtpyj","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ8FRidVkUK0pLet9t0BDbQJjH_hh2bTTGIQ&s","title":"O Grande Gatsby","author":"F. Scott Fitzgerald","genre":"Romance","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmrjjfee4if1m","cover":"https://m.media-amazon.com/images/I/71-YhujYUxS.jpg","title":"A Cabeça do Santo","author":"Socorro Acioli","genre":"Romance Brasileiro","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmwafpwnzkm8","cover":"https://m.media-amazon.com/images/I/81erTv98odL._UF1000,1000_QL80_.jpg","title":"Ao Professor, com Carinho","author":"E.R. Braithwaite","genre":"Biografia/Educação","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmblgbm5ueze8","cover":"https://static.cedet.com.br/produtos_imagem_principal_large/11427-525x791.jpg?v=1750275664","title":"A Conquista da América","author":"","genre":"","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmowdnb61imio","cover":"https://m.media-amazon.com/images/I/71ZVMtjsezL.jpg","title":"Apologia da História","author":"Marc Bloch","genre":"Historiografia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmb0ngs9asfy8","title":"O Príncipe","author":"Nicolau Maquiavel","genre":"Filosofia Política","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm09j0g4viwq5a","cover":"https://m.media-amazon.com/images/I/513-4wHWI0L._AC_UF1000,1000_QL80_.jpg","title":"Diário de Anne Frank","author":"Anne Frank","genre":"Autobiografia/História","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm052o5et07wkp","cover":"https://m.media-amazon.com/images/I/618-b9Im6dL._AC_UF1000,1000_QL80_.jpg","title":"Vidas Secas","author":"Graciliano Ramos","genre":"Romance/Literatura Brasileira","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmsgawhpxv7xh","cover":"https://m.media-amazon.com/images/I/71z42zpEwbL.jpg","title":"Quarto de Despejo","author":"Carolina Maria de Jesus","genre":"Diário/Literatura Brasileira","year":"","status":"reading","pread":0,"ptotal":0},{"id":"mouby2xmhb1ing9spcb","cover":"https://m.media-amazon.com/images/I/51yAXUUteyL._AC_UF1000,1000_QL80_.jpg","title":"Livro do Desassossego","author":"Fernando Pessoa","genre":"Prosa Poética","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmekw9amt3to","cover":"https://cirandacultural.fbitsstatic.net/img/p/livro-principis-hamlet-71025/257542.jpg?w=520&h=520&v=no-change&qs=ignore","title":"Hamlet","author":"William Shakespeare","genre":"Teatro/Clássico","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmhuxxbfy9phi","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFpXxMD7JNMMrT46epy5FOIH0JUTz3wmhKIw&s","title":"Um Defeito de Cor","author":"Ana Maria Gonçalves","genre":"Romance Histórico Brasileiro","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm4lnp53k89sb","cover":"https://m.media-amazon.com/images/I/91pNT9IAIpL.jpg","title":"Casa Grande e Senzala","author":"Gilberto Freyre","genre":"Ensaio/Sociologia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmtuiwmgdkx3d","cover":"https://m.media-amazon.com/images/I/61TaHURu27L._AC_UF1000,1000_QL80_.jpg","title":"A Hora da Estrela","author":"Clarice Lispector","genre":"Romance/Literatura Brasileira","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xm64khajs7mma","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1ofwq-sF2P4IN0_3uKa0hPRMY-4wzKYcqwQ&s","title":"Cem Anos de Solidão","author":"Gabriel García Márquez","genre":"Realismo Mágico","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm55ynbehkx1","cover":"https://m.media-amazon.com/images/I/810WJVEUvvL.jpg","title":"Educação como Prática da Liberdade","author":"Paulo Freire","genre":"Educação/Filosofia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmca58ae78ryl","cover":"https://m.media-amazon.com/images/I/911coB-aFLL.jpg","title":"A Nova Era do Império","author":"Kehinde Andrews","genre":"","year":"","status":"reading","pread":0,"ptotal":0},{"id":"mouby2xmkhidiiao8vi","cover":"https://m.media-amazon.com/images/I/61EWdSZFM9L.jpg","title":"Dom Casmurro","author":"Machado de Assis","genre":"Romance/Literatura Brasileira","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xm6p3s7jba0h","cover":"https://m.media-amazon.com/images/I/81NtboFZziL.jpg","title":"Grande Sertão: Veredas","author":"João Guimarães Rosa","genre":"Romance/Literatura Brasileira","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmpjrlekqz24","cover":"https://m.media-amazon.com/images/I/A1lPmAv2hEL._AC_UF1000,1000_QL80_.jpg","title":"O Povo Brasileiro","author":"Darcy Ribeiro","genre":"Ensaio/Sociologia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmg5ntmf2k8vi","cover":"https://m.media-amazon.com/images/I/91B5NWWKuzL._AC_UF1000,1000_QL80_.jpg","title":"A Natureza da Mordida","author":"Carla Madeira","genre":"","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmyejp5xaclpd","cover":"https://m.media-amazon.com/images/I/81SxoKdiSmL.jpg","title":"O Amor Não é Óbvio","author":"Elayne Baeta","genre":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmdm3blvme6vc","cover":"https://m.media-amazon.com/images/I/91BsZhxCRjL.jpg","title":"A Revolução dos Bichos","author":"George Orwell","genre":"Ficção/Alegoria Política","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmdmqrjji34e","cover":"https://livrarialoyola.fbitsstatic.net/img/p/a-arte-da-guerra-sun-tzu-221454/416198.jpg?w=800&h=800&v=no-change&qs=ignore","title":"A Arte da Guerra","author":"Sun Tzu","genre":"Estratégia/Filosofia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm7kdw0jnvkjv","title":"Visão do Paraíso","author":"Sérgio Buarque de Holanda","genre":"História/Ensaio","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmeniw7pv7kxt","cover":"https://m.paulinas.com.br/resizer/view/600/600/true/false/33.jpg","title":"As Duas Faces Inseparáveis da Educação: Coração e Razão","author":"","genre":"Educação","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmup0rklqf6l","title":"Capítulos de História Colonial","author":"Capistrano de Abreu","genre":"História do Brasil","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmb53gpsm2ar5","cover":"https://m.media-amazon.com/images/I/41jWF2y6TrL._AC_UF1000,1000_QL80_.jpg","title":"Brasil: Uma História — A Incrível Saga de um País","author":"Eduardo Bueno","genre":"História do Brasil","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xma9dx3oi5fk","cover":"https://m.media-amazon.com/images/I/813NdQ+NI4L.jpg","title":"Eu, Tituba: Bruxa Negra de Salém","author":"Maryse Condé","genre":"Romance Histórico","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xmiyxv6o9cpv","cover":"https://m.media-amazon.com/images/I/611+rkh+cyL._AC_UF1000,1000_QL80_.jpg","title":"As Meninas do Quarto 28","author":"Hannelore Brenner","genre":"História/Memória","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmk1prpo96jtd","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAJRhj2q7aJxYKP0v8MnMil3bbOYSPYujkwg&s","title":"O Sol é para Todos","author":"Harper Lee","genre":"Romance","year":"","status":"done","pread":0,"ptotal":0},{"id":"mouby2xm8gt1buq2g0f","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFNpobeGcxNi_wnkW0TjBJAJe0HXEU5cjcTQ&s","title":"Os Meninos que Enganavam Nazistas","author":"","genre":"História","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm48bec74q6b3","cover":"https://m.media-amazon.com/images/I/910r4FQoQjL.jpg","title":"História da Vida Privada no Brasil 1","author":"Fernando Novais (org.)","genre":"História do Brasil","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmw6fwxbf1kx","cover":"https://m.media-amazon.com/images/I/91mcpdghd5L._AC_UF1000,1000_QL80_.jpg","title":"História da Vida Privada 1","author":"Philippe Ariès & Georges Duby (org.)","genre":"História","year":"","status":"unread","pread":0,"ptotal":0},{"id":"moudw1sf1k5r6bhu17s","cover":"https://m.media-amazon.com/images/I/910MGvs8TVL._AC_UF1000,1000_QL80_.jpg","title":"A Viagem do Descobrimento","author":"Eduardo Bueno","genre":"História do Brasil","year":"","status":"unread","pread":0,"ptotal":0},{"id":"clara001sobrehist","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSboYW9WSFkWcb5-X-aHni3JGh6twdGhFiQHlziqABbg&s","title":"Sobre História","author":"Eric Hobsbawm","genre":"Historiografia","year":"","status":"unread","pread":0,"ptotal":0},{"id":"clara002annegables","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoD4TrudEmEtTsFRzTickf2WuUrmCy6whRyh6sQFY9Rg&s","title":"Anne de Green Gables","author":"L.M. Montgomery","genre":"Romance/Clássico","year":"","status":"reading","pread":0,"ptotal":0}];
+
+  books = PRELOAD;
+  render();
+</script>
+</body>
+</html>
