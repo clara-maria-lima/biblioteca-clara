@@ -160,8 +160,6 @@
     .sort-select { padding: 8px 12px; background: #fff; border: 1px solid var(--border); border-radius: 10px; color: var(--muted); font-size: 0.78rem; font-family: 'Inter', sans-serif; outline: none; cursor: pointer; }
     .sort-select:focus { border-color: var(--accent); }
 
-
-
     /* ── GRID ── */
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; padding: 24px 48px; flex: 1; align-items: start; }
 
@@ -190,7 +188,6 @@
 
     .card-body { padding: 10px; display: flex; flex-direction: column; gap: 6px; }
 
-    /* Cover with hover overlay */
     .card-cover-wrap {
       position: relative;
       width: 100%;
@@ -210,9 +207,6 @@
 
     .card-cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-
-
-    /* Status badge on top of cover */
     .cover-badge {
       position: absolute;
       top: 6px; right: 6px;
@@ -248,8 +242,6 @@
     .empty-icon { font-size: 3rem; margin-bottom: 16px; }
     .empty h3 { font-family: 'Syne', sans-serif; color: var(--muted); font-size: 1.2rem; margin-bottom: 8px; }
     .empty p { font-size: 0.82rem; color: var(--muted); }
-
-
 
     /* ── FOOTER ── */
     footer {
@@ -310,18 +302,527 @@
       <option value="author">Autor</option>
       <option value="status">Status</option>
     </select>
-
   </div>
 </div>
 
 <div class="grid" id="grid"></div>
-
 
 <footer>
   Biblioteca Clara &nbsp;·&nbsp; <span id="footer-count">0</span> livros na coleção
 </footer>
 
 <script>
+
+  // ==============================================
+  // LISTA DE LIVROS
+  // Para adicionar um livro novo, copie um bloco
+  // abaixo e cole antes do ]; no final da lista.
+  //
+  // Campos:
+  //   id      → identificador único (qualquer texto sem espaço)
+  //   title   → título do livro
+  //   author  → nome do autor
+  //   cover   → URL da imagem de capa (ou deixe "" para usar emoji)
+  //   status  → "unread" (na fila) | "reading" (lendo) | "done" (lido)
+  //   rating  → de 1 a 5 estrelas, só para livros com status "done"
+  //   pread   → páginas lidas (opcional, só para status "reading")
+  //   ptotal  → total de páginas (opcional, só para status "reading")
+  // ==============================================
+
+  const PRELOAD = [
+
+    {
+      id: "mouby2xmqz756l5bg1d",
+      title: "O Paraíso Destruído",
+      author: "",
+      cover: "https://m.media-amazon.com/images/I/71GmxCfLWhL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm3fk9lfihkdw",
+      title: "Futuro Ancestral",
+      author: "Ailton Krenak",
+      cover: "https://m.media-amazon.com/images/I/71AmXU-CZfL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm4433tkucabr",
+      title: "Iracema",
+      author: "José de Alencar",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcRUJUTcTMhOQqQSmc4eMUTAMYc1ZeJxYiGA&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmrjjfee4if1m",
+      title: "A Cabeça do Santo",
+      author: "Socorro Acioli",
+      cover: "https://m.media-amazon.com/images/I/71-YhujYUxS.jpg",
+      status: "done",
+      rating: 5,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmwafpwnzkm8",
+      title: "Ao Professor, com Carinho",
+      author: "E.R. Braithwaite",
+      cover: "https://m.media-amazon.com/images/I/81erTv98odL._UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmblgbm5ueze8",
+      title: "A Conquista da América",
+      author: "Tzvetan Todorov",
+      cover: "https://static.cedet.com.br/produtos_imagem_principal_large/11427-525x791.jpg?v=1750275664",
+      status: "done",
+      rating: 5,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmowdnb61imio",
+      title: "Apologia da História",
+      author: "Marc Bloch",
+      cover: "https://m.media-amazon.com/images/I/71ZVMtjsezL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmb0ngs9asfy8",
+      title: "O Príncipe",
+      author: "Nicolau Maquiavel",
+      cover: "",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm09j0g4viwq5a",
+      title: "Diário de Anne Frank",
+      author: "Anne Frank",
+      cover: "https://m.media-amazon.com/images/I/513-4wHWI0L._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm052o5et07wkp",
+      title: "Vidas Secas",
+      author: "Graciliano Ramos",
+      cover: "https://m.media-amazon.com/images/I/618-b9Im6dL._AC_UF1000,1000_QL80_.jpg",
+      status: "done",
+      rating: 5,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmsgawhpxv7xh",
+      title: "Quarto de Despejo",
+      author: "Carolina Maria de Jesus",
+      cover: "https://m.media-amazon.com/images/I/71z42zpEwbL.jpg",
+      status: "reading",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmhb1ing9spcb",
+      title: "Livro do Desassossego",
+      author: "Fernando Pessoa",
+      cover: "https://m.media-amazon.com/images/I/51yAXUUteyL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmhuxxbfy9phi",
+      title: "Um Defeito de Cor",
+      author: "Ana Maria Gonçalves",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFpXxMD7JNMMrT46epy5FOIH0JUTz3wmhKIw&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm4lnp53k89sb",
+      title: "Casa Grande e Senzala",
+      author: "Gilberto Freyre",
+      cover: "https://m.media-amazon.com/images/I/91pNT9IAIpL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmtuiwmgdkx3d",
+      title: "A Hora da Estrela",
+      author: "Clarice Lispector",
+      cover: "https://m.media-amazon.com/images/I/61TaHURu27L._AC_UF1000,1000_QL80_.jpg",
+      status: "done",
+      rating: 4,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm64khajs7mma",
+      title: "Cem Anos de Solidão",
+      author: "Gabriel García Márquez",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1ofwq-sF2P4IN0_3uKa0hPRMY-4wzKYcqwQ&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm55ynbehkx1",
+      title: "Educação como Prática da Liberdade",
+      author: "Paulo Freire",
+      cover: "https://m.media-amazon.com/images/I/810WJVEUvvL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmca58ae78ryl",
+      title: "A Nova Era do Império",
+      author: "Kehinde Andrews",
+      cover: "https://m.media-amazon.com/images/I/911coB-aFLL.jpg",
+      status: "reading",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmkhidiiao8vi",
+      title: "Dom Casmurro",
+      author: "Machado de Assis",
+      cover: "https://m.media-amazon.com/images/I/61EWdSZFM9L.jpg",
+      status: "done",
+      rating: 3,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm6p3s7jba0h",
+      title: "Grande Sertão: Veredas",
+      author: "João Guimarães Rosa",
+      cover: "https://m.media-amazon.com/images/I/81NtboFZziL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmpjrlekqz24",
+      title: "O Povo Brasileiro",
+      author: "Darcy Ribeiro",
+      cover: "https://m.media-amazon.com/images/I/A1lPmAv2hEL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmg5ntmf2k8vi",
+      title: "A Natureza da Mordida",
+      author: "Carla Madeira",
+      cover: "https://m.media-amazon.com/images/I/91B5NWWKuzL._AC_UF1000,1000_QL80_.jpg",
+      status: "done",
+      rating: 3,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmyejp5xaclpd",
+      title: "O Amor Não é Óbvio",
+      author: "Elayne Baeta",
+      cover: "https://m.media-amazon.com/images/I/81SxoKdiSmL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmdm3blvme6vc",
+      title: "A Revolução dos Bichos",
+      author: "George Orwell",
+      cover: "https://m.media-amazon.com/images/I/91BsZhxCRjL.jpg",
+      status: "done",
+      rating: 5,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmdmqrjji34e",
+      title: "A Arte da Guerra",
+      author: "Sun Tzu",
+      cover: "https://livrarialoyola.fbitsstatic.net/img/p/a-arte-da-guerra-sun-tzu-221454/416198.jpg?w=800&h=800&v=no-change&qs=ignore",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm7kdw0jnvkjv",
+      title: "Visão do Paraíso",
+      author: "Sérgio Buarque de Holanda",
+      cover: "",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmeniw7pv7kxt",
+      title: "As Duas Faces Inseparáveis da Educação: Coração e Razão",
+      author: "",
+      cover: "https://m.paulinas.com.br/resizer/view/600/600/true/false/33.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmup0rklqf6l",
+      title: "Capítulos de História Colonial",
+      author: "Capistrano de Abreu",
+      cover: "",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmb53gpsm2ar5",
+      title: "Brasil: Uma História — A Incrível Saga de um País",
+      author: "Eduardo Bueno",
+      cover: "https://m.media-amazon.com/images/I/41jWF2y6TrL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xma9dx3oi5fk",
+      title: "Eu, Tituba: Bruxa Negra de Salém",
+      author: "Maryse Condé",
+      cover: "https://m.media-amazon.com/images/I/813NdQ+NI4L.jpg",
+      status: "done",
+      rating: 4,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmiyxv6o9cpv",
+      title: "As Meninas do Quarto 28",
+      author: "Hannelore Brenner",
+      cover: "https://m.media-amazon.com/images/I/611+rkh+cyL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmk1prpo96jtd",
+      title: "O Sol é para Todos",
+      author: "Harper Lee",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAJRhj2q7aJxYKP0v8MnMil3bbOYSPYujkwg&s",
+      status: "done",
+      rating: 5,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm8gt1buq2g0f",
+      title: "Os Meninos que Enganavam Nazistas",
+      author: "",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFNpobeGcxNi_wnkW0TjBJAJe0HXEU5cjcTQ&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xm48bec74q6b3",
+      title: "História da Vida Privada no Brasil 1",
+      author: "Fernando Novais (org.)",
+      cover: "https://m.media-amazon.com/images/I/910r4FQoQjL.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "mouby2xmw6fwxbf1kx",
+      title: "História da Vida Privada 1",
+      author: "Philippe Ariès & Georges Duby (org.)",
+      cover: "https://m.media-amazon.com/images/I/91mcpdghd5L._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "moudw1sf1k5r6bhu17s",
+      title: "A Viagem do Descobrimento",
+      author: "Eduardo Bueno",
+      cover: "https://m.media-amazon.com/images/I/910MGvs8TVL._AC_UF1000,1000_QL80_.jpg",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "clara001sobrehist",
+      title: "Sobre História",
+      author: "Eric Hobsbawm",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSboYW9WSFkWcb5-X-aHni3JGh6twdGhFiQHlziqABbg&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "clara002annegables",
+      title: "Anne de Green Gables",
+      author: "L.M. Montgomery",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoD4TrudEmEtTsFRzTickf2WuUrmCy6whRyh6sQFY9Rg&s",
+      status: "reading",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    // ── LIVROS NOVOS ──────────────────────────────
+
+    {
+      id: "novo001revolucao",
+      title: "A Revolução Cubana",
+      author: "Luis Fernando Ayerbe",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3KPBdEQ9Ld3J2z5R1d5e1kw2h66bUi-bIcldWqLtvkQ&s=10",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "novo002kindred",
+      title: "Kindred: Laços de Sangue",
+      author: "Octavia E. Butler",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDXLKLhLUwzNVF-m3-rDB3txum15qSBJx7vRzWa4ex0Q&s=10",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "novo003verao",
+      title: "Depois daquele verão",
+      author: "Carley Fortune",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTSBm1GewZg6QDmoNJliLMjTtHca0ZljOucMiz9orl_w&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "novo004mil984",
+      title: "1984",
+      author: "George Orwell",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRL5rVb1j2GLmSxDUT7_YasBao6mFyWf9UuM0kTti4pmw&s=10",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "novo005evelyn",
+      title: "Os Sete Maridos de Evelyn Hugo",
+      author: "Taylor Jenkins Reid",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcMB2vy6qrf0XVfzqjEj0tP1_Qa-3CxCxOU4hi1nkSlw&s",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+    {
+      id: "novo006minhavidainteira",
+      title: "Minha Vida por Inteiro",
+      author: "Indra Nooyi",
+      cover: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQHkacr4EJ2jabBYS7zM70QVYG9lVL1D5ftuga_ldoRA&s=10",
+      status: "unread",
+      rating: 0,
+      pread: 0,
+      ptotal: 0
+    },
+
+  ];
+
+  // ==============================================
+  // CÓDIGO DA PÁGINA — não precisa mexer abaixo
+  // ==============================================
+
   let books = [];
   let activeFilter = 'all';
   let searchQuery = '';
@@ -432,11 +933,9 @@
     render();
   });
 
-  // AQUI ESTÃO TODOS OS SEUS DADOS COPIADOS COM SUCESSO!
-  const PRELOAD = [{"id":"mouby2xm8neszyfd8gc","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSo_pOav0pYy-4xaKpEFTUcRQ36ENf1vF3HRQ&s","title":"O Mulato","author":"Aluísio Azevedo","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmqz756l5bg1d","cover":"https://m.media-amazon.com/images/I/71GmxCfLWhL._AC_UF1000,1000_QL80_.jpg","title":"O Paraíso Destruído","author":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm3fk9lfihkdw","cover":"https://m.media-amazon.com/images/I/71AmXU-CZfL.jpg","title":"Futuro Ancestral","author":"Ailton Krenak","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm4433tkucabr","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcRUJUTcTMhOQqQSmc4eMUTAMYc1ZeJxYiGA&s","title":"Iracema","author":"José de Alencar","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmp1iwwgtpyj","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQ8FRidVkUK0pLet9t0BDbQJjH_hh2bTTGIQ&s","title":"O Grande Gatsby","author":"F. Scott Fitzgerald","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmrjjfee4if1m","cover":"https://m.media-amazon.com/images/I/71-YhujYUxS.jpg","title":"A Cabeça do Santo","author":"Socorro Acioli","year":"","status":"done","rating":6,"pread":0,"ptotal":0},{"id":"mouby2xmwafpwnzkm8","cover":"https://m.media-amazon.com/images/I/81erTv98odL._UF1000,1000_QL80_.jpg","title":"Ao Professor, com Carinho","author":"E.R. Braithwaite","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmblgbm5ueze8","cover":"https://static.cedet.com.br/produtos_imagem_principal_large/11427-525x791.jpg?v=1750275664","title":"A Conquista da América","author":"Tzvetan Todorov","year":"","status":"done","rating":5,"pread":0,"ptotal":0},{"id":"mouby2xmowdnb61imio","cover":"https://m.media-amazon.com/images/I/71ZVMtjsezL.jpg","title":"Apologia da História","author":"Marc Bloch","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmb0ngs9asfy8","title":"O Príncipe","author":"Nicolau Maquiavel","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm09j0g4viwq5a","cover":"https://m.media-amazon.com/images/I/513-4wHWI0L._AC_UF1000,1000_QL80_.jpg","title":"Diário de Anne Frank","author":"Anne Frank","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm052o5et07wkp","cover":"https://m.media-amazon.com/images/I/618-b9Im6dL._AC_UF1000,1000_QL80_.jpg","title":"Vidas Secas","author":"Graciliano Ramos","year":"","status":"done","rating":5,"pread":0,"ptotal":0},{"id":"mouby2xmsgawhpxv7xh","cover":"https://m.media-amazon.com/images/I/71z42zpEwbL.jpg","title":"Quarto de Despejo","author":"Carolina Maria de Jesus","year":"","status":"reading","pread":0,"ptotal":0},{"id":"mouby2xmhb1ing9spcb","cover":"https://m.media-amazon.com/images/I/51yAXUUteyL._AC_UF1000,1000_QL80_.jpg","title":"Livro do Desassossego","author":"Fernando Pessoa","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmekw9amt3to","cover":"https://cirandacultural.fbitsstatic.net/img/p/livro-principis-hamlet-71025/257542.jpg?w=520&h=520&v=no-change&qs=ignore","title":"Hamlet","author":"William Shakespeare","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmhuxxbfy9phi","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFpXxMD7JNMMrT46epy5FOIH0JUTz3wmhKIw&s","title":"Um Defeito de Cor","author":"Ana Maria Gonçalves","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm4lnp53k89sb","cover":"https://m.media-amazon.com/images/I/91pNT9IAIpL.jpg","title":"Casa Grande e Senzala","author":"Gilberto Freyre","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmtuiwmgdkx3d","cover":"https://m.media-amazon.com/images/I/61TaHURu27L._AC_UF1000,1000_QL80_.jpg","title":"A Hora da Estrela","author":"Clarice Lispector","year":"","status":"done","rating":4,"pread":0,"ptotal":0},{"id":"mouby2xm64khajs7mma","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1ofwq-sF2P4IN0_3uKa0hPRMY-4wzKYcqwQ&s","title":"Cem Anos de Solidão","author":"Gabriel García Márquez","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm55ynbehkx1","cover":"https://m.media-amazon.com/images/I/810WJVEUvvL.jpg","title":"Educação como Prática da Liberdade","author":"Paulo Freire","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmca58ae78ryl","cover":"https://m.media-amazon.com/images/I/911coB-aFLL.jpg","title":"A Nova Era do Império","author":"Kehinde Andrews","year":"","status":"reading","pread":0,"ptotal":0},{"id":"mouby2xmkhidiiao8vi","cover":"https://m.media-amazon.com/images/I/61EWdSZFM9L.jpg","title":"Dom Casmurro","author":"Machado de Assis","year":"","status":"done","rating":3,"pread":0,"ptotal":0},{"id":"mouby2xm6p3s7jba0h","cover":"https://m.media-amazon.com/images/I/81NtboFZziL.jpg","title":"Grande Sertão: Veredas","author":"João Guimarães Rosa","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmpjrlekqz24","cover":"https://m.media-amazon.com/images/I/A1lPmAv2hEL._AC_UF1000,1000_QL80_.jpg","title":"O Povo Brasileiro","author":"Darcy Ribeiro","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmg5ntmf2k8vi","cover":"https://m.media-amazon.com/images/I/91B5NWWKuzL._AC_UF1000,1000_QL80_.jpg","title":"A Natureza da Mordida","author":"Carla Madeira","year":"","status":"done","rating":3,"pread":0,"ptotal":0},{"id":"mouby2xmyejp5xaclpd","cover":"https://m.media-amazon.com/images/I/81SxoKdiSmL.jpg","title":"O Amor Não é Óbvio","author":"Elayne Baeta","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmdm3blvme6vc","cover":"https://m.media-amazon.com/images/I/91BsZhxCRjL.jpg","title":"A Revolução dos Bichos","author":"George Orwell","year":"","status":"done","rating":5,"pread":0,"ptotal":0},{"id":"mouby2xmdmqrjji34e","cover":"https://livrarialoyola.fbitsstatic.net/img/p/a-arte-da-guerra-sun-tzu-221454/416198.jpg?w=800&h=800&v=no-change&qs=ignore","title":"A Arte da Guerra","author":"Sun Tzu","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm7kdw0jnvkjv","title":"Visão do Paraíso","author":"Sérgio Buarque de Holanda","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmeniw7pv7kxt","cover":"https://m.paulinas.com.br/resizer/view/600/600/true/false/33.jpg","title":"As Duas Faces Inseparáveis da Educação: Coração e Razão","author":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmup0rklqf6l","title":"Capítulos de História Colonial","author":"Capistrano de Abreu","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmb53gpsm2ar5","cover":"https://m.media-amazon.com/images/I/41jWF2y6TrL._AC_UF1000,1000_QL80_.jpg","title":"Brasil: Uma História — A Incrível Saga de um País","author":"Eduardo Bueno","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xma9dx3oi5fk","cover":"https://m.media-amazon.com/images/I/813NdQ+NI4L.jpg","title":"Eu, Tituba: Bruxa Negra de Salém","author":"Maryse Condé","year":"","status":"done","rating":4,"pread":0,"ptotal":0},{"id":"mouby2xmiyxv6o9cpv","cover":"https://m.media-amazon.com/images/I/611+rkh+cyL._AC_UF1000,1000_QL80_.jpg","title":"As Meninas do Quarto 28","author":"Hannelore Brenner","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmk1prpo96jtd","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAJRhj2q7aJxYKP0v8MnMil3bbOYSPYujkwg&s","title":"O Sol é para Todos","author":"Harper Lee","year":"","status":"done","rating":5,"pread":0,"ptotal":0},{"id":"mouby2xm8gt1buq2g0f","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFNpobeGcxNi_wnkW0TjBJAJe0HXEU5cjcTQ&s","title":"Os Meninos que Enganavam Nazistas","author":"","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xm48bec74q6b3","cover":"https://m.media-amazon.com/images/I/910r4FQoQjL.jpg","title":"História da Vida Privada no Brasil 1","author":"Fernando Novais (org.)","year":"","status":"unread","pread":0,"ptotal":0},{"id":"mouby2xmw6fwxbf1kx","cover":"https://m.media-amazon.com/images/I/91mcpdghd5L._AC_UF1000,1000_QL80_.jpg","title":"História da Vida Privada 1","author":"Philippe Ariès & Georges Duby (org.)","year":"","status":"unread","pread":0,"ptotal":0},{"id":"moudw1sf1k5r6bhu17s","cover":"https://m.media-amazon.com/images/I/910MGvs8TVL._AC_UF1000,1000_QL80_.jpg","title":"A Viagem do Descobrimento","author":"Eduardo Bueno","year":"","status":"unread","pread":0,"ptotal":0},{"id":"clara001sobrehist","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSboYW9WSFkWcb5-X-aHni3JGh6twdGhFiQHlziqABbg&s","title":"Sobre História","author":"Eric Hobsbawm","year":"","status":"unread","pread":0,"ptotal":0},{"id":"clara002annegables","cover":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoD4TrudEmEtTsFRzTickf2WuUrmCy6whRyh6sQFY9Rg&s","title":"Anne de Green Gables","author":"L.M. Montgomery","year":"","status":"reading","pread":0,"ptotal":0}];
-
   books = PRELOAD;
   render();
+
 </script>
 </body>
 </html>
